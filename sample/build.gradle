@@ -1,0 +1,27 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        applicationId "com.yichiuan.common.sample"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled true
+        }
+    }
+}
+
+dependencies {
+    compile project(":library")
+
+    compile "com.android.support:appcompat-v7:${libs.supportVersion}"
+    compile "com.android.support.constraint:constraint-layout:${libs.constraintLayout}"
+}

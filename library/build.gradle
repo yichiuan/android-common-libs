@@ -1,0 +1,17 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+    }
+}
+
+dependencies {
+    compile "com.android.support:support-annotations:${libs.supportVersion}"
+
+    // Dependencies for local unit tests
+    testCompile "junit:junit:${libs.junit}"
+}
