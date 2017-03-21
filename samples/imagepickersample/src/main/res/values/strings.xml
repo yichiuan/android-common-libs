@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ImagePicker Sample</string>
+    <string name="main_take_picture">Take Picture</string>
+</resources>
