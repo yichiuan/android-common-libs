@@ -24,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Main Activity";
 
     Button takePictureButton;
+    Button pickFromGalleryButton;
+    Button pickFromDocumentsButton;
 
     ImageView showImageView;
 
@@ -35,13 +37,29 @@ public class MainActivity extends AppCompatActivity {
         showImageView = (ImageView) findViewById(R.id.imageview_show);
 
         takePictureButton = (Button) findViewById(R.id.button_take_picture);
-
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ImagePicker.openCamera(MainActivity.this);
             }
         });
+
+        pickFromGalleryButton = (Button) findViewById(R.id.button_pick_from_gallery);
+        pickFromGalleryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImagePicker.openGallery(MainActivity.this, true);
+            }
+        });
+
+        pickFromDocumentsButton = (Button) findViewById(R.id.button_pick_from_documents);
+        pickFromDocumentsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImagePicker.openDocuments(MainActivity.this, true);
+            }
+        });
+
     }
 
     @Override
@@ -50,7 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "onActivityResult() ResultCode: " + resultCode);
 
-        ImagePicker.handleActivityResult(requestCode, resultCode, new ImagePicker.Callbacks() {
+        ImagePicker.handleActivityResult(requestCode, resultCode, data, this,
+                new ImagePicker.Callbacks() {
             @Override
             public void onImagePickerError(Exception e) {
                 Log.e(TAG, e.getMessage());

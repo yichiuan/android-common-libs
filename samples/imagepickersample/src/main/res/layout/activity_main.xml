@@ -11,9 +11,6 @@
         android:id="@+id/imageview_show"
         android:layout_width="0dp"
         android:layout_height="357dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="0dp"
         android:adjustViewBounds="true"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -24,15 +21,35 @@
         android:id="@+id/button_take_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
         android:text="@string/main_take_picture"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/button_pick_from_gallery"
         app:layout_constraintTop_toBottomOf="@+id/imageview_show" />
+
+    <Button
+        android:id="@+id/button_pick_from_gallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_pick_from_gallery"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="@+id/button_take_picture"
+        app:layout_constraintLeft_toRightOf="@+id/button_take_picture"
+        app:layout_constraintRight_toLeftOf="@+id/button_pick_from_documents"
+        app:layout_constraintTop_toTopOf="@+id/button_take_picture" />
+
+    <Button
+        android:id="@+id/button_pick_from_documents"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_pick_from_documents"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="@+id/button_take_picture"
+        app:layout_constraintLeft_toRightOf="@+id/button_pick_from_gallery"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/button_take_picture" />
 
 </android.support.constraint.ConstraintLayout>
 

@@ -11,6 +11,8 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 
+import com.yichiuan.common.Uris;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,8 @@ public final class ImagePicker {
 
     private static final int REQUEST_IDENTIFICATOR = 0b1011001010;
     private static final int REQUEST_TAKE_PHOTO = REQUEST_IDENTIFICATOR + (1 << 11);
+    private static final int REQUEST_PICK_PICTURE_FROM_GALLERY = REQUEST_IDENTIFICATOR + (1 << 12);
+    private static final int REQUEST_PICK_PICTURE_FROM_DOCUMENTS = REQUEST_IDENTIFICATOR + (1 << 13);
 
     private static final String FILEPROVIDER_AUTHORITY
             = "com.yichiuan.common.imagepicker.fileprovider";
@@ -64,6 +68,29 @@ public final class ImagePicker {
         }
     }
 
+    /**
+     * Opens default galery or a available galleries picker if there is no default
+     *
+     * @param activity a activity reference
+     * @param multiple if true, allow the user to select and return multiple items.
+     */
+    public static void openGallery(@NonNull Activity activity, boolean multiple) {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        if (multiple && Build.VERSION.SDK_INT >= 18) {
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        }
+        activity.startActivityForResult(intent, REQUEST_PICK_PICTURE_FROM_GALLERY);
+    }
+
+    public static void openDocuments(@NonNull Activity activity, boolean multiple) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        if (multiple && Build.VERSION.SDK_INT >= 18) {
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        }
+        activity.startActivityForResult(intent, REQUEST_PICK_PICTURE_FROM_DOCUMENTS);
+    }
+
     private static void grantUriPermission(Context context, Intent intent, Uri photoUri,
             int permissionFlags) {
         // Workaround for Uri Permissions for EXTRA_OUTPUT on ACTION_IMAGE_CAPTURE on API < 21
@@ -80,8 +107,8 @@ public final class ImagePicker {
     }
 
     @MainThread
-    public static void handleActivityResult(int requestCode, int resultCode,
-            @NonNull Callbacks callbacks) {
+    public static void handleActivityResult(int requestCode, int resultCode, Intent data,
+            Context context, @NonNull Callbacks callbacks) {
 
         boolean isImagePickerRequest = (requestCode & REQUEST_IDENTIFICATOR) > 0;
 
@@ -101,6 +128,23 @@ public final class ImagePicker {
                                 "Unable to get the picture returned from camera");
                         callbacks.onImagePickerError(e);
                     }
+                    break;
+                case REQUEST_PICK_PICTURE_FROM_GALLERY:
+                case REQUEST_PICK_PICTURE_FROM_DOCUMENTS:
+                    ClipData clipData = data.getClipData();
+                    List<File> files = new ArrayList<>();
+                    if (clipData == null) {
+                        Uri uri = data.getData();
+                        File file = Uris.getFileFromUri(context, uri);
+                        files.add(file);
+                    } else {
+                        for (int i = 0; i < clipData.getItemCount(); i++) {
+                            Uri uri = clipData.getItemAt(i).getUri();
+                            File file = Uris.getFileFromUri(context, uri);
+                            files.add(file);
+                        }
+                    }
+                    callbacks.onImagesPicked(files);
                     break;
             }
         }
