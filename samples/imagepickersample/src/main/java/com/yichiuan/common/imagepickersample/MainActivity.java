@@ -3,7 +3,9 @@ package com.yichiuan.common.imagepickersample;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -18,7 +20,6 @@ import com.yichiuan.common.Bitmaps;
 import com.yichiuan.common.Photos;
 import com.yichiuan.common.imagepicker.ImagePicker;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -79,36 +80,47 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "onActivityResult() ResultCode: " + resultCode);
 
-        ImagePicker.handleActivityResult(requestCode, resultCode, data, this,
+        ImagePicker.handleActivityResult(requestCode, resultCode, data,
                 new ImagePicker.Callbacks() {
-            @Override
-            public void onImagePickerError(Exception e) {
-                Log.e(TAG, e.getMessage());
-            }
+                    @Override
+                    public void onImagePickerError(Exception e) {
+                        Log.e(TAG, e.getMessage());
+                    }
 
-            @Override
-            public void onImagesPicked(@NonNull List<File> imageFiles) {
-                int requestWidth = showImageView.getWidth();
-                int requestHeight = showImageView.getHeight();
+                    @Override
+                    public void onImagesPicked(@NonNull List<Uri> imageFiles) {
+                        int requestWidth = showImageView.getWidth();
+                        int requestHeight = showImageView.getHeight();
 
-                String filePath = imageFiles.get(0).getAbsolutePath();
+                        Uri uri = imageFiles.get(0);
 
-                Bitmap bitmap = Bitmaps.decodeSampledBitmapFromFile(filePath, requestWidth,
-                        requestHeight);
+                        AssetFileDescriptor fd = null;
+                        try {
+                            fd = getContentResolver().openAssetFileDescriptor(uri, "r");
 
-                try {
-                    int degree = Photos.getOrientationFromExif(filePath);
-                    showImageView.setImageBitmap(Bitmaps.rotateBitmap(bitmap, degree));
-                } catch (IOException e) {
-                    Log.e(TAG, e.getMessage());
-                }
-            }
+                            Bitmap bitmap = Bitmaps.decodeSampledBitmapFromFileDescriptor(
+                                    fd.getFileDescriptor(), requestWidth, requestHeight);
 
-            @Override
-            public void onCanceled() {
-                Toast.makeText(getApplicationContext(), "ImagePicker onCanceled()",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+                            int degree = Photos.getOrientationFromExif(fd.createInputStream());
+                            showImageView.setImageBitmap(Bitmaps.rotateBitmap(bitmap, degree));
+
+                        } catch (IOException e) {
+                            Log.e(TAG, e.getMessage());
+                        } finally {
+                            if (fd != null) {
+                                try {
+                                    fd.close();
+                                } catch (IOException ignored) {
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCanceled() {
+                        Toast.makeText(getApplicationContext(), "ImagePicker onCanceled()",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

@@ -11,8 +11,6 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 
-import com.yichiuan.common.Uris;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +33,7 @@ public final class ImagePicker {
     public interface Callbacks {
         void onImagePickerError(Exception e);
 
-        void onImagesPicked(@NonNull List<File> imageFiles);
+        void onImagesPicked(@NonNull List<Uri> imageFiles);
 
         void onCanceled();
     }
@@ -108,7 +106,7 @@ public final class ImagePicker {
 
     @MainThread
     public static void handleActivityResult(int requestCode, int resultCode, Intent data,
-            Context context, @NonNull Callbacks callbacks) {
+            @NonNull Callbacks callbacks) {
 
         boolean isImagePickerRequest = (requestCode & REQUEST_IDENTIFICATOR) > 0;
 
@@ -120,9 +118,9 @@ public final class ImagePicker {
             switch (requestCode) {
                 case REQUEST_TAKE_PHOTO:
                     if (currentImageFile != null) {
-                        ArrayList<File> files = new ArrayList<>();
-                        files.add(currentImageFile);
-                        callbacks.onImagesPicked(files);
+                        ArrayList<Uri> uris = new ArrayList<>();
+                        uris.add(Uri.fromFile(currentImageFile));
+                        callbacks.onImagesPicked(uris);
                     } else {
                         Exception e = new IllegalStateException(
                                 "Unable to get the picture returned from camera");
@@ -132,19 +130,17 @@ public final class ImagePicker {
                 case REQUEST_PICK_PICTURE_FROM_GALLERY:
                 case REQUEST_PICK_PICTURE_FROM_DOCUMENTS:
                     ClipData clipData = data.getClipData();
-                    List<File> files = new ArrayList<>();
+                    List<Uri> uris = new ArrayList<>();
                     if (clipData == null) {
                         Uri uri = data.getData();
-                        File file = Uris.getFileFromUri(context, uri);
-                        files.add(file);
+                        uris.add(uri);
                     } else {
                         for (int i = 0; i < clipData.getItemCount(); i++) {
                             Uri uri = clipData.getItemAt(i).getUri();
-                            File file = Uris.getFileFromUri(context, uri);
-                            files.add(file);
+                            uris.add(uri);
                         }
                     }
-                    callbacks.onImagesPicked(files);
+                    callbacks.onImagesPicked(uris);
                     break;
             }
         }
