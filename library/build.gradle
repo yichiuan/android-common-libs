@@ -7,13 +7,18 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:${libs.supportVersion}"
+    api "com.android.support:appcompat-v7:${libs.supportVersion}"
 
-    compile "com.android.support:exifinterface:${libs.supportVersion}"
+    api "com.android.support:exifinterface:${libs.supportVersion}"
 
     // Dependencies for local unit tests
-    testCompile "junit:junit:${libs.junit}"
+    testImplementation "junit:junit:${libs.junit}"
 }

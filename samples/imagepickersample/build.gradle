@@ -17,11 +17,16 @@ android {
             minifyEnabled true
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
-    compile project(":library")
+    implementation project(":library")
 
-    compile "com.android.support:appcompat-v7:${libs.supportVersion}"
-    compile "com.android.support.constraint:constraint-layout:${libs.constraintLayout}"
+    implementation "com.android.support:appcompat-v7:${libs.supportVersion}"
+    implementation "com.android.support.constraint:constraint-layout:${libs.constraintLayout}"
 }

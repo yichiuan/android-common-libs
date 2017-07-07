@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -43,28 +42,13 @@ public class MainActivity extends AppCompatActivity {
         showImageView = (ImageView) findViewById(R.id.imageview_show);
 
         takePictureButton = (Button) findViewById(R.id.button_take_picture);
-        takePictureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImagePicker.openCamera(MainActivity.this);
-            }
-        });
+        takePictureButton.setOnClickListener(v -> ImagePicker.openCamera(this));
 
         pickFromGalleryButton = (Button) findViewById(R.id.button_pick_from_gallery);
-        pickFromGalleryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImagePicker.openGallery(MainActivity.this, true);
-            }
-        });
+        pickFromGalleryButton.setOnClickListener(v -> ImagePicker.openGallery(this, true));
 
         pickFromDocumentsButton = (Button) findViewById(R.id.button_pick_from_documents);
-        pickFromDocumentsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImagePicker.openDocuments(MainActivity.this, true);
-            }
-        });
+        pickFromDocumentsButton.setOnClickListener(v -> ImagePicker.openDocuments(this, true));
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
