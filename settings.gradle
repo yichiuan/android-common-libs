@@ -2,3 +2,4 @@ include ':library'
 
 include ':sample'
 include ':samples:imagepickersample'
+include ':samples:bottomphotopickersample'
