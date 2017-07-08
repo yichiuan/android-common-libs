@@ -3,8 +3,8 @@
 
     <application>
         <provider
-            android:name=".imagepicker.ImagePickerFileProvider"
-            android:authorities="com.yichiuan.common.imagepicker.fileprovider"
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.imagepicker.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

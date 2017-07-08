@@ -23,9 +23,6 @@ public final class ImagePicker {
     private static final int REQUEST_PICK_PICTURE_FROM_GALLERY = REQUEST_IDENTIFICATOR + (1 << 12);
     private static final int REQUEST_PICK_PICTURE_FROM_DOCUMENTS = REQUEST_IDENTIFICATOR + (1 << 13);
 
-    private static final String FILEPROVIDER_AUTHORITY
-            = "com.yichiuan.common.imagepicker.fileprovider";
-
     private static final String DEFAULT_FOLDER_NAME = "ImagePicker";
 
     private static File currentImageFile = null;
@@ -54,7 +51,9 @@ public final class ImagePicker {
             currentImageFile = createImageFile(activity);
 
             if (currentImageFile != null) {
-                Uri photoUri = FileProvider.getUriForFile(activity, FILEPROVIDER_AUTHORITY,
+                final String packageName = activity.getApplicationContext().getPackageName();
+                final String authority = packageName + ".imagepicker.fileprovider";
+                Uri photoUri = FileProvider.getUriForFile(activity, authority,
                         currentImageFile);
                 grantUriPermission(activity, takePictureIntent, photoUri,
                         Intent.FLAG_GRANT_WRITE_URI_PERMISSION
