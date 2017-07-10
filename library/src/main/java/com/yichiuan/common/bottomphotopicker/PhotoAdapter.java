@@ -14,31 +14,41 @@ import com.yichiuan.common.R;
 
 import static com.bumptech.glide.request.RequestOptions.placeholderOf;
 
-public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder>{
+public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder>
+        implements View.OnClickListener {
 
-    private LayoutInflater layoutInflater;
+    private LayoutInflater inflater;
 
     private Cursor cursor;
 
     public PhotoAdapter(Context context, Cursor cursor) {
-        layoutInflater = LayoutInflater.from(context);
+        inflater = LayoutInflater.from(context);
         this.cursor = cursor;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View view = layoutInflater.inflate(R.layout.item_photo_cell, parent, false);
-        return new ViewHolder(view);
+    public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        final View view = inflater.inflate(R.layout.item_photo_cell, parent, false);
+        return new PhotoViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        final Cursor cursor = getItem(position);
+    public void onBindViewHolder(PhotoViewHolder holder, int position) {
+        if (!isCursorValid(cursor)) {
+            throw new IllegalStateException("Cannot bind view holder when cursor is in invalid state.");
+        }
+
+        if (!cursor.moveToPosition(position)) {
+            throw new IllegalStateException("Could not move cursor to position " + position
+                    + " when trying to bind view holder");
+        }
+
+        holder.checkView.setOnClickListener(this);
 
         int index = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
         String src = cursor.getString(index);
 
-        Context context = layoutInflater.getContext();
+        Context context = inflater.getContext();
 
         Glide.with(context).load(src)
                 .apply(placeholderOf(android.R.drawable.screen_background_dark))
@@ -47,26 +57,35 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder>{
 
     @Override
     public int getItemCount() {
-        return cursor.getCount();
-    }
-
-    private Cursor getItem(final int position)
-    {
-        if (!cursor.isClosed())
-        {
-            cursor.moveToPosition(position);
+        if (isCursorValid(cursor)) {
+            return cursor.getCount();
+        } else {
+            return 0;
         }
-
-        return cursor;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    private static boolean isCursorValid(Cursor cursor) {
+        return cursor != null && !cursor.isClosed();
+    }
 
+    @Override
+    public void onClick(View view) {
+        CheckView checkView = (CheckView) view;
+        if (checkView.checked()) {
+            checkView.setCheck(false);
+        } else {
+            checkView.setCheck(true);
+        }
+    }
+
+    static class PhotoViewHolder extends RecyclerView.ViewHolder {
         ImageView photoView;
+        CheckView checkView;
 
-        ViewHolder(View itemView) {
+        PhotoViewHolder(View itemView) {
             super(itemView);
             photoView = itemView.findViewById(R.id.imageView);
+            checkView = itemView.findViewById(R.id.checkView);
         }
     }
 }
