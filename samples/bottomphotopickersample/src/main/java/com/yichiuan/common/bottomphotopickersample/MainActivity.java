@@ -3,16 +3,17 @@ package com.yichiuan.common.bottomphotopickersample;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
-import com.yichiuan.common.bottomphotopicker.PhotoAdapter;
+import com.yichiuan.common.bottomphotopicker.MediaPicker;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,11 +27,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         photoPickerView = findViewById(R.id.recyclerView);
-
-        LinearLayoutManager linearLayoutManager =
-                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-
-        photoPickerView.setLayoutManager(linearLayoutManager);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -48,7 +44,13 @@ public class MainActivity extends AppCompatActivity {
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 columns);
 
-        photoPickerView.setAdapter(new PhotoAdapter(this, cursor));
+        MediaPicker.with(photoPickerView)
+                .load(cursor)
+                .subscribe(uris -> {
+                    for (Uri uri : uris) {
+                        Log.i("MainActivity", "Uri: " + uri);
+                    }
+                });
     }
 
     @Override
