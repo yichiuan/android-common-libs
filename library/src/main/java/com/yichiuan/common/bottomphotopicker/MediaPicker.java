@@ -27,6 +27,8 @@ public final class MediaPicker {
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
+        recyclerView.setHasFixedSize(true);
+
         adapter = new PhotoAdapter(recyclerView.getContext(), null);
         adapter.setSelectListener(new PhotoAdapter.SelectListener() {
             @Override
