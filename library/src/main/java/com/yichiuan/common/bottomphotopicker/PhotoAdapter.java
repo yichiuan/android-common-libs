@@ -10,19 +10,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.yichiuan.common.R;
 
+import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
 import static com.bumptech.glide.request.RequestOptions.placeholderOf;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder>
         implements View.OnClickListener {
 
-    private LayoutInflater inflater;
+    private static final String MIME_TYPE_GIF = "image/gif";
+
+    private final LayoutInflater inflater;
 
     private Cursor cursor;
-
     private SelectListener selectListener;
 
     public PhotoAdapter(Context context, Cursor cursor) {
@@ -50,14 +54,27 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         holder.checkView.setTag(position);
         holder.checkView.setOnClickListener(this);
 
-        int index = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.DATA);
-        String src = cursor.getString(index);
+        int indexOfData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        int indexOfMimeType = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
+
+        String src = cursor.getString(indexOfData);
+        String mimeType = cursor.getString(indexOfMimeType);
 
         Context context = inflater.getContext();
 
-        Glide.with(context).load(src)
-                .apply(placeholderOf(android.R.drawable.screen_background_dark))
-                .into(holder.photoView);
+        if (mimeType.equals(MIME_TYPE_GIF)) {
+            holder.badgeView.setVisibility(View.VISIBLE);
+            Glide.with(context)
+                    .load(src)
+                    .apply(diskCacheStrategyOf(DiskCacheStrategy.DATA))
+                    .apply(placeholderOf(android.R.drawable.screen_background_dark))
+                    .into(holder.photoView);
+        } else {
+            holder.badgeView.setVisibility(View.INVISIBLE);
+            Glide.with(context).load(src)
+                    .apply(placeholderOf(android.R.drawable.screen_background_dark))
+                    .into(holder.photoView);
+        }
     }
 
     @Override
@@ -119,13 +136,15 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     }
 
     static class PhotoViewHolder extends RecyclerView.ViewHolder {
-        ImageView photoView;
-        CheckView checkView;
+        final ImageView photoView;
+        final CheckView checkView;
+        final TextView badgeView;
 
         PhotoViewHolder(View itemView) {
             super(itemView);
             photoView = itemView.findViewById(R.id.imageView);
             checkView = itemView.findViewById(R.id.checkView);
+            badgeView = itemView.findViewById(R.id.textview_badge);
         }
     }
 }

@@ -34,13 +34,14 @@ public class MainActivity extends AppCompatActivity
 
         photoPickerView = findViewById(R.id.recyclerView);
 
+        mediaPicker = MediaPicker.with(photoPickerView);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         } else {
-            mediaPicker =MediaPicker.with(photoPickerView);
             loadMediaData();
         }
     }
@@ -68,7 +69,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        final String[] columns = {MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA};
+        final String[] columns = {MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA,
+                MediaStore.Images.Media.MIME_TYPE};
 
         return new CursorLoader(this,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,

@@ -16,4 +16,17 @@
         android:layout_gravity="right"
         android:layout_marginRight="6dp"
         android:layout_marginTop="6dp" />
+
+    <TextView
+        android:id="@+id/textview_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="8dp"
+        android:background="@drawable/mimetype_background"
+        android:fontFamily="monospace"
+        android:text="GIF"
+        android:textColor="@android:color/darker_gray"
+        android:textStyle="bold" />
 </FrameLayout>
