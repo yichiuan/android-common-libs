@@ -21,7 +21,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.yichiuan.common.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
 import static com.bumptech.glide.request.RequestOptions.placeholderOf;
@@ -37,7 +36,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     private final LayoutInflater inflater;
 
     private Cursor cursor;
-    private List<Uri> selectedUris = new ArrayList<>();
+    private ArrayList<Uri> selectedUris = new ArrayList<>();
     private SelectListener selectListener;
 
     public PhotoAdapter(Context context, Cursor cursor) {
@@ -174,8 +173,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         }
     }
 
-    public List<Uri> getSelectedUris() {
+    public ArrayList<Uri> getSelectedUris() {
         return selectedUris;
+    }
+
+    public void setSelectedUris(ArrayList<Uri> uris) {
+        selectedUris = uris;
     }
 
     public void setSelectListener(SelectListener selectListener) {
@@ -183,9 +186,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     }
 
     interface SelectListener {
-        void onSelected(List<Uri> uris);
+        void onSelected(ArrayList<Uri> uris);
 
-        void onDeselected(List<Uri> uris);
+        void onDeselected(ArrayList<Uri> uris);
     }
 
     static class PhotoViewHolder extends RecyclerView.ViewHolder {

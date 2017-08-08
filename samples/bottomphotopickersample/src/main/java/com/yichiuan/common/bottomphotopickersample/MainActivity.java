@@ -18,6 +18,8 @@ import android.util.Log;
 
 import com.yichiuan.common.bottomphotopicker.MediaPicker;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -44,6 +46,17 @@ public class MainActivity extends AppCompatActivity
         } else {
             loadMediaData();
         }
+
+        if (savedInstanceState != null) {
+            ArrayList<Uri> selectedUris = savedInstanceState.getParcelableArrayList("selected_uris");
+            mediaPicker.setSelectedUris(selectedUris);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("selected_uris", mediaPicker.getSelectedUris());
+        super.onSaveInstanceState(outState);
     }
 
     private void loadMediaData() {
