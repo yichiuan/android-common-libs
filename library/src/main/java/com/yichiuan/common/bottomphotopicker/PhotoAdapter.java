@@ -20,6 +20,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.yichiuan.common.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.bumptech.glide.request.RequestOptions.diskCacheStrategyOf;
 import static com.bumptech.glide.request.RequestOptions.placeholderOf;
 
@@ -34,6 +37,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     private final LayoutInflater inflater;
 
     private Cursor cursor;
+    private List<Uri> selectedUris = new ArrayList<>();
     private SelectListener selectListener;
 
     public PhotoAdapter(Context context, Cursor cursor) {
@@ -45,37 +49,23 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View view = inflater.inflate(R.layout.item_photo_cell, parent, false);
         PhotoViewHolder holder = new PhotoViewHolder(view);
-        holder.itemView.setOnClickListener(v -> {
-            Context context = parent.getContext();
-            Intent intent = new Intent(context, PhotoPreviewActivity.class);
-
-            moveCursor(holder.getAdapterPosition());
-
-            int idOfData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-            int indexOfData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            String id = cursor.getString(idOfData);
-            String src = cursor.getString(indexOfData);
-            intent.putExtra(EXTRA_SRC, src);
-            intent.putExtra(EXTRA_TRANSITION_NAME, id);
-
-            ViewCompat.setTransitionName(holder.photoView, id);
-
-            ActivityOptionsCompat options = ActivityOptionsCompat.
-                    makeSceneTransitionAnimation((Activity) context, holder.photoView, id);
-
-            holder.itemView.getContext().startActivity(intent, options.toBundle());
-        });
+        holder.itemView.setOnClickListener(this);
+        holder.checkView.setOnClickListener(this);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(PhotoViewHolder holder, int position) {
         holder.checkView.setTag(position);
-        holder.checkView.setOnClickListener(this);
+        holder.itemView.setTag(holder);
 
         moveCursor(position);
         int indexOfData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         int indexOfMimeType = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID));
+        Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+
+        holder.checkView.setCheck(selectedUris.contains(uri));
 
         String src = cursor.getString(indexOfData);
         String mimeType = cursor.getString(indexOfMimeType);
@@ -137,24 +127,55 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public void onClick(View view) {
-        CheckView checkView = (CheckView) view;
+        if (view instanceof CheckView) {
+            CheckView checkView = (CheckView) view;
 
-        int position = (int)checkView.getTag();
+            int position = (int) checkView.getTag();
+            moveCursor(position);
 
-        if (!cursor.moveToPosition(position)) {
-            throw new IllegalStateException("Could not move cursor to position " + position
-                    + " when trying to bind view holder");
-        }
-        int id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID));
-        Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+            int id = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns._ID));
+            Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
 
-        if (checkView.checked()) {
-            checkView.setCheck(false);
-            selectListener.onDeselected(uri);
+            if (checkView.checked()) {
+                checkView.setCheck(false);
+
+                if (selectedUris.remove(uri)) {
+                    selectListener.onDeselected(selectedUris);
+                }
+
+            } else {
+                checkView.setCheck(true);
+
+                if (!selectedUris.contains(uri)) {
+                    selectedUris.add(uri);
+                    selectListener.onSelected(selectedUris);
+                }
+            }
         } else {
-            checkView.setCheck(true);
-            selectListener.onSelected(uri);
+            PhotoViewHolder holder = (PhotoViewHolder) view.getTag();
+            moveCursor(holder.getAdapterPosition());
+
+            Context context = holder.itemView.getContext();
+            Intent intent = new Intent(context, PhotoPreviewActivity.class);
+
+            int idOfData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+            int indexOfData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            String id = cursor.getString(idOfData);
+            String src = cursor.getString(indexOfData);
+            intent.putExtra(EXTRA_SRC, src);
+            intent.putExtra(EXTRA_TRANSITION_NAME, id);
+
+            ViewCompat.setTransitionName(holder.photoView, id);
+
+            ActivityOptionsCompat options = ActivityOptionsCompat.
+                    makeSceneTransitionAnimation((Activity) context, holder.photoView, id);
+
+            context.startActivity(intent, options.toBundle());
         }
+    }
+
+    public List<Uri> getSelectedUris() {
+        return selectedUris;
     }
 
     public void setSelectListener(SelectListener selectListener) {
@@ -162,8 +183,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     }
 
     interface SelectListener {
-        void onSelected(Uri uri);
-        void onDeselected(Uri uri);
+        void onSelected(List<Uri> uris);
+
+        void onDeselected(List<Uri> uris);
     }
 
     static class PhotoViewHolder extends RecyclerView.ViewHolder {

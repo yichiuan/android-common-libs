@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class MediaPicker {
@@ -16,8 +15,6 @@ public final class MediaPicker {
     private PhotoAdapter adapter;
 
     private Cursor cursor;
-
-    private List<Uri> selectecUris = new ArrayList<>();
 
     private StateListener stateListener;
 
@@ -32,22 +29,16 @@ public final class MediaPicker {
         adapter = new PhotoAdapter(recyclerView.getContext(), null);
         adapter.setSelectListener(new PhotoAdapter.SelectListener() {
             @Override
-            public void onSelected(Uri uri) {
-                if (!selectecUris.contains(uri)) {
-                    selectecUris.add(uri);
-
-                    if (stateListener != null) {
-                        stateListener.changed(selectecUris);
-                    }
+            public void onSelected(List<Uri> uris) {
+                if (stateListener != null) {
+                    stateListener.changed(uris);
                 }
             }
 
             @Override
-            public void onDeselected(Uri uri) {
-                if (selectecUris.remove(uri)) {
-                    if (stateListener != null) {
-                        stateListener.changed(selectecUris);
-                    }
+            public void onDeselected(List<Uri> uris) {
+                if (stateListener != null) {
+                    stateListener.changed(uris);
                 }
             }
         });
@@ -67,6 +58,10 @@ public final class MediaPicker {
     public MediaPicker subscribe(@NonNull StateListener stateListener) {
         this.stateListener = stateListener;
         return this;
+    }
+
+    public List<Uri> getSelectedUris() {
+        return adapter.getSelectedUris();
     }
 
     public interface StateListener {
