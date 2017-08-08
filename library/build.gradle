@@ -20,9 +20,12 @@ dependencies {
     api "com.android.support:appcompat-v7:${libs.supportVersion}"
     api "com.android.support:recyclerview-v7:${libs.supportVersion}"
     api "com.android.support:exifinterface:${libs.supportVersion}"
+    api 'com.android.support.constraint:constraint-layout:1.0.2'
 
     // Glide
     api "com.github.bumptech.glide:glide:${libs.glide}"
+
+    api "com.github.chrisbanes:PhotoView:${libs.PhotoView}"
 
     // Dependencies for local unit tests
     testImplementation "junit:junit:${libs.junit}"

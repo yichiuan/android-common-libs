@@ -1,0 +1,5 @@
+<resources>
+    <style name="AppTheme.Transition">
+        <item name="android:windowContentTransitions">true</item>
+    </style>
+</resources>

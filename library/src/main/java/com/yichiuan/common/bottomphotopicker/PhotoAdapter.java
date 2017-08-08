@@ -1,10 +1,14 @@
 package com.yichiuan.common.bottomphotopicker;
 
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +28,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     private static final String MIME_TYPE_GIF = "image/gif";
 
+    static final String EXTRA_SRC = "src";
+    static final String EXTRA_TRANSITION_NAME = "transition";
+
     private final LayoutInflater inflater;
 
     private Cursor cursor;
@@ -37,23 +44,36 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     @Override
     public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         final View view = inflater.inflate(R.layout.item_photo_cell, parent, false);
-        return new PhotoViewHolder(view);
+        PhotoViewHolder holder = new PhotoViewHolder(view);
+        holder.itemView.setOnClickListener(v -> {
+            Context context = parent.getContext();
+            Intent intent = new Intent(context, PhotoPreviewActivity.class);
+
+            moveCursor(holder.getAdapterPosition());
+
+            int idOfData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
+            int indexOfData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            String id = cursor.getString(idOfData);
+            String src = cursor.getString(indexOfData);
+            intent.putExtra(EXTRA_SRC, src);
+            intent.putExtra(EXTRA_TRANSITION_NAME, id);
+
+            ViewCompat.setTransitionName(holder.photoView, id);
+
+            ActivityOptionsCompat options = ActivityOptionsCompat.
+                    makeSceneTransitionAnimation((Activity) context, holder.photoView, id);
+
+            holder.itemView.getContext().startActivity(intent, options.toBundle());
+        });
+        return holder;
     }
 
     @Override
     public void onBindViewHolder(PhotoViewHolder holder, int position) {
-        if (!isCursorValid(cursor)) {
-            throw new IllegalStateException("Cannot bind view holder when cursor is in invalid state.");
-        }
-
-        if (!cursor.moveToPosition(position)) {
-            throw new IllegalStateException("Could not move cursor to position " + position
-                    + " when trying to bind view holder");
-        }
-
         holder.checkView.setTag(position);
         holder.checkView.setOnClickListener(this);
 
+        moveCursor(position);
         int indexOfData = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         int indexOfMimeType = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE);
 
@@ -74,6 +94,17 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             Glide.with(context).load(src)
                     .apply(placeholderOf(android.R.drawable.screen_background_dark))
                     .into(holder.photoView);
+        }
+    }
+
+    private void moveCursor(int position) {
+        if (!isCursorValid(cursor)) {
+            throw new IllegalStateException("Cannot bind view holder when cursor is in invalid state.");
+        }
+
+        if (!cursor.moveToPosition(position)) {
+            throw new IllegalStateException("Could not move cursor to position " + position
+                    + " when trying to bind view holder");
         }
     }
 
