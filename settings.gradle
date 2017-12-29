@@ -1,5 +1,6 @@
-include ':library'
+include ':library', ':CommonView'
 
 include ':sample'
 include ':samples:imagepickersample'
 include ':samples:bottomphotopickersample'
+include ':samples:commonviewsample'
